@@ -57,7 +57,7 @@ export function exportCategoryCsv(
       "Average buying cost",
       "Average landed cost",
       "Online price",
-      "Market price",
+      "Seller minimum return",
       "Clearance price",
       "Expected revenue",
     ],
@@ -84,10 +84,17 @@ export function exportBuyingChecklist(
   result: ScenarioResult,
 ) {
   const rows = [
-    ["Category", "Target quantity", "Target average cost", "Maximum price"],
+    [
+      "Category",
+      "Target quantity",
+      "Minimum buying price",
+      "Target average cost",
+      "Maximum buying price",
+    ],
     ...result.categories.map((category, index) => [
       category.name,
       category.quantity,
+      scenario.categories[index]?.minBuyingPrice ?? 0,
       scenario.categories[index]?.averageBuyingPrice ?? 0,
       scenario.categories[index]?.maxBuyingPrice ?? 0,
     ]),

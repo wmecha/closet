@@ -109,7 +109,11 @@ export function SensitivityPanel({ scenario }: { scenario: PlannerScenario }) {
             ["Purchase costs", "purchaseCostChangePercent", [0, 5, 10, 20]],
             ["Selling prices", "sellingPriceChangePercent", [0, -5, -10, -20]],
             ["Transport costs", "transportCostChangePercent", [0, 5, 10, 20]],
-            ["Seller commission", "commissionChangePercent", [0, 5, 10, 20]],
+            [
+              "Additional seller cost",
+              "commissionChangePercent",
+              [0, 5, 10, 20],
+            ],
             ["Damaged stock", "damagedStockChangePercent", [0, 2, 5, 10]],
             ["Shift online to market", "marketMixShiftPercent", [0, 5, 10, 20]],
           ].map(([label, key, options]) => (

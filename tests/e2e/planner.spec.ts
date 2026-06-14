@@ -18,6 +18,10 @@ test("operator creates, edits, saves, reopens and compares scenarios", async ({
 
   await page.getByRole("tab", { name: "Category allocation" }).click();
   await page.getByLabel("Category 1 name").fill("Dresses premium");
+  await page.getByLabel("Category 1 minimum buying price").fill("120");
+  await page.getByLabel("Category 1 average buying price").fill("160");
+  await page.getByLabel("Category 1 maximum buying price").fill("220");
+  await page.getByLabel("Category 1 seller minimum return").fill("450");
 
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Draft saved")).toBeVisible();
@@ -29,9 +33,20 @@ test("operator creates, edits, saves, reopens and compares scenarios", async ({
   await expect(page.getByLabel("Available startup capital")).toHaveValue(
     "30000",
   );
+  await page.getByRole("tab", { name: "Category allocation" }).click();
+  await expect(page.getByLabel("Category 1 minimum buying price")).toHaveValue(
+    "120",
+  );
+  await expect(page.getByLabel("Category 1 maximum buying price")).toHaveValue(
+    "220",
+  );
+  await expect(page.getByLabel("Category 1 seller minimum return")).toHaveValue(
+    "450",
+  );
 
   await page.getByRole("button", { name: "More scenario actions" }).click();
   await page.getByRole("menuitem", { name: "Duplicate" }).click();
+  await page.getByRole("tab", { name: "Capital" }).click();
   await expect(page.getByLabel("Scenario name")).toHaveValue(
     "KES 30,000 Test Buy copy",
   );

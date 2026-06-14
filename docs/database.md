@@ -23,6 +23,7 @@ The application writes one validated scenario snapshot. A database trigger synch
 - Quantity and percentage constraints.
 - Channel percentages must total 100%.
 - Damaged plus unsold percentages cannot exceed 100%.
+- Category minimum, average and maximum buying prices are stored in the scenario JSON snapshot; the normalized category row retains the average while the full snapshot preserves the adjustable range.
 - Duplicate active scenario names are blocked per business.
 - Draft-only scenario deletion policy; approved records should be archived.
 - `updated_at` triggers and scenario audit triggers.

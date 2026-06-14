@@ -12,6 +12,7 @@ import {
   MoreHorizontal,
   Plus,
   Printer,
+  RefreshCcw,
   Save,
   Share2,
   Trash2,
@@ -208,6 +209,21 @@ export function PlannerWorkspace() {
     toast.success("Scenario archived.");
   }
 
+  function applyFiftyPieceStarterPlan() {
+    const current = form.getValues();
+    const revised = createDefaultScenario({
+      id: current.id,
+      name: current.name,
+      description:
+        "50-piece starter plan using an adjustable KES 100-200 buying range, KES 150 average cost, controlled online pricing and seller minimum returns.",
+      status: current.status,
+      createdAt: current.createdAt,
+      updatedAt: new Date().toISOString(),
+    });
+    form.reset(revised);
+    toast.success("Applied the revised 50-piece starter assumptions.");
+  }
+
   async function removeScenario() {
     try {
       const currentId = form.getValues("id");
@@ -297,6 +313,9 @@ export function PlannerWorkspace() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={duplicateScenario}>
                   <Copy /> Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={applyFiftyPieceStarterPlan}>
+                  <RefreshCcw /> Apply 50-piece starter plan
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => window.print()}>
                   <Printer /> Print report

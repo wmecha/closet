@@ -111,7 +111,7 @@ export function ComparisonPanel({
         row.result.inventory.damagedItems,
     ],
     [
-      "Online / market mix",
+      "Online / seller-return mix",
       (row: (typeof comparison.rows)[number]) =>
         `${formatKes(row.result.revenue.onlineRevenue)} / ${formatKes(row.result.revenue.marketRevenue)}`,
     ],

@@ -33,11 +33,15 @@ Rounding options are nearest KES 10, 50 or 100, or the next price ending in 49 o
 
 ## Revenue
 
-Each category uses its online, market and clearance mix. Those percentages must total 100%.
+Each category uses its online, seller-led market and clearance mix. Those percentages must total 100%.
 
 - Channel revenue before discount: `expected sold items × channel mix × channel price`
 - Expected channel revenue: `channel revenue before discount × (1 - discount rate)`
 - Expected realised revenue: sum of online, market and clearance revenue.
+
+For seller-led market sales, the market price is the **minimum amount the business expects back per sold item**, not necessarily the customer's final price. A seller may sell above that minimum and retain the difference as their own markup. Because that markup never enters business revenue, it is not deducted as a commission. Only separately agreed allowances or commissions are entered as additional seller costs.
+
+M-PESA payments should go directly to the business paybill. Cash received by sellers must be deposited to the designated agent and reconciled against sold items.
 
 ## Profit
 

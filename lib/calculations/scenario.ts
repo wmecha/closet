@@ -185,10 +185,9 @@ export function calculateScenario(scenario: PlannerScenario): ScenarioResult {
       onlineRevenueBeforeDiscount,
       discountMultiplier,
     );
-    const marketRevenue = percentOf(
-      marketRevenueBeforeDiscount,
-      discountMultiplier,
-    );
+    // Seller-led sales return a fixed minimum amount to the business.
+    // Any amount charged above this belongs to the seller and is not modelled.
+    const marketRevenue = marketRevenueBeforeDiscount;
     const clearanceRevenue = percentOf(
       clearanceRevenueBeforeDiscount,
       discountMultiplier,

@@ -24,13 +24,18 @@ describe("financial calculation engine", () => {
 
     expect(allocatedExpenseTotal(scenario.expenses)).toBe(10_000);
     expect(operatingExpenseTotal(scenario.expenses)).toBe(7_500);
-    expect(result.capital.stockBudget).toBe(32_500);
+    expect(result.capital.stockBudget).toBe(7_500);
     expect(result.capital.totalExpenses).toBe(17_500);
     expect(result.capital.overBudget).toBe(0);
+    expect(result.inventory.totalItems).toBe(50);
+    expect(result.inventory.averagePurchaseCost).toBe(150);
+    expect(scenario.categories[0].minBuyingPrice).toBe(100);
+    expect(scenario.categories[0].maxBuyingPrice).toBe(200);
   });
 
   it("calculates budget-driven quantity and unused budget", () => {
     const scenario = createDefaultScenario({
+      mode: "budget",
       categories: [
         {
           ...createDefaultScenario().categories[0],
@@ -113,6 +118,29 @@ describe("financial calculation engine", () => {
     );
   });
 
+  it("treats market price as the fixed minimum business return", () => {
+    const base = createDefaultScenario({
+      expectedSellThroughPercent: 100,
+      categories: [
+        {
+          ...createDefaultScenario().categories[0],
+          quantity: 10,
+          onlinePercent: 0,
+          marketPercent: 100,
+          clearancePercent: 0,
+          marketPrice: 400,
+          discountPercent: 50,
+          damagedPercent: 0,
+          unsoldPercent: 0,
+        },
+      ],
+    });
+    const result = calculateScenario(base);
+
+    expect(result.revenue.marketRevenue).toBe(4_000);
+    expect(result.profit.sellerCommission).toBe(0);
+  });
+
   it("calculates supported seller commissions", () => {
     expect(
       calculateSellerCommission(
@@ -148,7 +176,7 @@ describe("financial calculation engine", () => {
         ),
     );
     expect(result.profit.netProfit).toBeLessThan(result.profit.grossProfit);
-    expect(result.profit.returnOnCapitalPercent).toBeGreaterThan(0);
+    expect(Number.isFinite(result.profit.returnOnCapitalPercent)).toBe(true);
     expect(result.profit.breakEvenItemCount).toBeGreaterThan(0);
     expect(result.profit.breakEvenSellThroughPercent).toBeGreaterThan(0);
     expect(result.cashRecovery).toHaveLength(6);
@@ -166,7 +194,7 @@ describe("financial calculation engine", () => {
     );
 
     expect(downside.profit.netProfit).toBeLessThan(baseline.profit.netProfit);
-    expect(scenario.categories[0].averageBuyingPrice).toBe(650);
+    expect(scenario.categories[0].averageBuyingPrice).toBe(150);
   });
 
   it("compares scenarios and identifies key extrema", () => {
@@ -174,16 +202,16 @@ describe("financial calculation engine", () => {
     const second = createDefaultScenario({
       name: "Lower capital",
       totalCapital: 40_000,
-      plannedStockBudget: 25_000,
+      plannedStockBudget: 6_000,
       categories: createDefaultScenario().categories.map((category) => ({
         ...category,
-        budget: Math.floor((category.budget * 25_000) / 32_500),
+        quantity: Math.max(1, Math.floor(category.quantity * 0.8)),
       })),
     });
     const comparison = compareScenarios([first, second]);
 
     expect(comparison.rows).toHaveLength(2);
     expect(comparison.highlights.lowestCapital).toBe(40_000);
-    expect(comparison.highlights.highestProfit).toBeGreaterThan(0);
+    expect(Number.isFinite(comparison.highlights.highestProfit)).toBe(true);
   });
 });

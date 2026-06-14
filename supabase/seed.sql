@@ -1,13 +1,14 @@
 insert into public.scenario_templates (name, description, data)
 values (
   'First Meru Ladies Drop',
-  'Editable starting assumptions for a KES 50,000 first sourcing trip.',
+  'Editable 50-piece starter plan using a KES 100-200 buying range and KES 150 average cost.',
   '{
     "totalCapital": 50000,
-    "plannedStockBudget": 32500,
+    "plannedStockBudget": 7500,
+    "mode": "quantity",
     "targetPricingMethod": "markup",
-    "targetRatePercent": 120,
-    "expectedSellThroughPercent": 85,
+    "targetRatePercent": 50,
+    "expectedSellThroughPercent": 90,
     "priceRounding": "nearest_50"
   }'::jsonb
 )

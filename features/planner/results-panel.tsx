@@ -42,7 +42,7 @@ export function ResultsPanel({
   ];
   const channelData = [
     { name: "Online", value: result.revenue.onlineRevenue },
-    { name: "Market", value: result.revenue.marketRevenue },
+    { name: "Seller returns", value: result.revenue.marketRevenue },
     { name: "Clearance", value: result.revenue.clearanceRevenue },
   ];
 
@@ -155,7 +155,7 @@ export function ResultsPanel({
             ["Average purchase cost", result.inventory.averagePurchaseCost],
             ["Average landed cost", result.inventory.averageLandedCost],
             ["Gross profit", result.profit.grossProfit],
-            ["Seller commission", result.profit.sellerCommission],
+            ["Additional seller costs", result.profit.sellerCommission],
             ["Payment charges", result.profit.paymentCharges],
             ["Break-even revenue", result.profit.breakEvenRevenue],
           ].map(([label, value]) => (

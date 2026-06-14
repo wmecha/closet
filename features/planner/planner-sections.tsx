@@ -5,7 +5,6 @@ import { CircleHelp, Plus, Trash2 } from "lucide-react";
 import type { PlannerScenario } from "./schema";
 import type { ScenarioResult } from "@/lib/calculations/scenario";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -439,7 +438,7 @@ export function CategoriesSection({
           </Alert>
         ) : null}
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="min-w-[1720px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-52">Category</TableHead>
@@ -447,10 +446,14 @@ export function CategoriesSection({
                   {mode === "budget" ? "Budget" : "Required budget"}
                 </TableHead>
                 <TableHead className="min-w-24">Qty</TableHead>
-                <TableHead className="min-w-32">Avg buy</TableHead>
+                <TableHead className="min-w-28">Buy min</TableHead>
+                <TableHead className="min-w-28">Buy avg</TableHead>
+                <TableHead className="min-w-28">Buy max</TableHead>
                 <TableHead className="min-w-32">Avg landed</TableHead>
-                <TableHead className="min-w-28">Online</TableHead>
-                <TableHead className="min-w-28">Market</TableHead>
+                <TableHead className="min-w-28">Online price</TableHead>
+                <TableHead className="min-w-36">
+                  Seller minimum return
+                </TableHead>
                 <TableHead className="min-w-28">Clearance</TableHead>
                 <TableHead className="min-w-28">Online %</TableHead>
                 <TableHead className="min-w-28">Market %</TableHead>
@@ -472,9 +475,6 @@ export function CategoriesSection({
                         aria-label={`Category ${index + 1} name`}
                         {...register(`categories.${index}.name`)}
                       />
-                      <Badge variant="outline" className="mt-2">
-                        {field.priority.replaceAll("_", " ")}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       {mode === "budget" ? (
@@ -515,8 +515,33 @@ export function CategoriesSection({
                         type="number"
                         min={0}
                         className="font-mono"
+                        aria-label={`Category ${index + 1} minimum buying price`}
+                        {...register(
+                          `categories.${index}.minBuyingPrice`,
+                          numberValue,
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min={0}
+                        className="font-mono"
+                        aria-label={`Category ${index + 1} average buying price`}
                         {...register(
                           `categories.${index}.averageBuyingPrice`,
+                          numberValue,
+                        )}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min={0}
+                        className="font-mono"
+                        aria-label={`Category ${index + 1} maximum buying price`}
+                        {...register(
+                          `categories.${index}.maxBuyingPrice`,
                           numberValue,
                         )}
                       />
@@ -529,6 +554,7 @@ export function CategoriesSection({
                         type="number"
                         min={0}
                         className="font-mono"
+                        aria-label={`Category ${index + 1} online selling price`}
                         {...register(
                           `categories.${index}.onlinePrice`,
                           numberValue,
@@ -540,6 +566,7 @@ export function CategoriesSection({
                         type="number"
                         min={0}
                         className="font-mono"
+                        aria-label={`Category ${index + 1} seller minimum return`}
                         {...register(
                           `categories.${index}.marketPrice`,
                           numberValue,
@@ -661,10 +688,23 @@ export function PricingSection({
         <CardHeader>
           <CardTitle>Pricing and sales assumptions</CardTitle>
           <CardDescription>
-            Markup is calculated from cost. Margin is calculated from the
-            selling price.
+            Online prices are controlled by the business. For seller-led market
+            sales, enter only the minimum amount the business must receive back
+            per item.
           </CardDescription>
         </CardHeader>
+        <CardContent className="pb-0">
+          <Alert>
+            <AlertTitle>Seller minimum-return model</AlertTitle>
+            <AlertDescription>
+              A seller may charge the customer more than the minimum return and
+              keep that difference as their markup. The planner counts only the
+              minimum return as business revenue. M-PESA customers use the
+              business paybill; cash collected by a seller must be deposited to
+              the designated agent and reconciled against the items sold.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
         <CardContent className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           <div className="space-y-2">
             <Label>Pricing approach</Label>
@@ -736,7 +776,7 @@ export function PricingSection({
             />
           </div>
           <div className="space-y-2">
-            <Label>Seller commission model</Label>
+            <Label>Additional seller cost (optional)</Label>
             <Controller
               control={control}
               name="sellerCommission.type"
@@ -746,7 +786,9 @@ export function PricingSection({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No commission</SelectItem>
+                    <SelectItem value="none">
+                      None - seller keeps markup above minimum
+                    </SelectItem>
                     <SelectItem value="percentage">Percentage</SelectItem>
                     <SelectItem value="fixed_per_item">
                       Fixed per item
@@ -762,12 +804,12 @@ export function PricingSection({
           </div>
           <MoneyField
             id="commission-amount"
-            label="Commission rate / amount"
+            label="Additional rate / amount"
             registration={register("sellerCommission.amount", numberValue)}
           />
           <MoneyField
             id="commission-target"
-            label="Commission target"
+            label="Additional-cost target"
             registration={register(
               "sellerCommission.targetAmount",
               numberValue,
@@ -790,6 +832,7 @@ export function PricingSection({
                 <TableHead>Category</TableHead>
                 <TableHead>Avg purchase</TableHead>
                 <TableHead>Avg landed</TableHead>
+                <TableHead>Seller minimum return</TableHead>
                 <TableHead>Minimum safe</TableHead>
                 <TableHead>Recommended</TableHead>
                 <TableHead>Premium</TableHead>
@@ -807,6 +850,11 @@ export function PricingSection({
                     )}
                   </TableCell>
                   <TableCell>{formatKes(category.averageLandedCost)}</TableCell>
+                  <TableCell>
+                    {formatKes(
+                      form.getValues(`categories.${index}.marketPrice`),
+                    )}
+                  </TableCell>
                   <TableCell>{formatKes(category.minimumSafePrice)}</TableCell>
                   <TableCell className="text-primary font-semibold">
                     {formatKes(category.recommendedPrice)}

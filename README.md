@@ -33,6 +33,9 @@ docs/                        Formula, database, roles and deployment notes
 - Scenario create, edit, duplicate, archive and draft deletion.
 - Automatic draft preservation and explicit save.
 - Budget-driven and quantity-driven category planning.
+- Adjustable minimum, average and maximum buying prices per category.
+- Revised 50-piece starter assumptions: KES 100-200 buying range, KES 150 average cost, mostly KES 500 online pricing with KES 800-1,000 special pieces.
+- Seller minimum-return planning: business revenue uses the fixed amount due back per item while sellers may retain any price above it as their markup.
 - Startup/acquisition expense allocation and equal-per-item landed cost.
 - Markup/margin pricing, five price-rounding methods and category price guidance.
 - Revenue, profit, break-even, return-on-capital and cash-recovery calculations.

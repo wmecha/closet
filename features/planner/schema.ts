@@ -60,6 +60,21 @@ export const categorySchema = z
         message: "Damaged and unsold percentages cannot exceed 100%.",
       });
     }
+    if (category.minBuyingPrice > category.averageBuyingPrice) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["minBuyingPrice"],
+        message: "Minimum buying price cannot exceed the average buying price.",
+      });
+    }
+    if (category.averageBuyingPrice > category.maxBuyingPrice) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["maxBuyingPrice"],
+        message:
+          "Maximum buying price cannot be below the average buying price.",
+      });
+    }
   });
 
 export const scenarioSchema = z
