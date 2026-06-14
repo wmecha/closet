@@ -1,0 +1,240 @@
+import type {
+  PlannerCategory,
+  PlannerExpense,
+  PlannerScenario,
+} from "./schema";
+
+const today = new Date().toISOString().slice(0, 10);
+
+const expense = (
+  id: string,
+  name: string,
+  category: string,
+  amount: number,
+  allocateToInventory: boolean,
+): PlannerExpense => ({
+  id,
+  name,
+  category,
+  amount,
+  costType: "fixed",
+  allocateToInventory,
+  notes: "",
+});
+
+const category = (
+  id: string,
+  name: string,
+  budget: number,
+  averageBuyingPrice: number,
+  onlinePrice: number,
+  marketPrice: number,
+  clearancePrice: number,
+  priority: PlannerCategory["priority"],
+): PlannerCategory => ({
+  id,
+  name,
+  budget,
+  quantity: Math.floor(budget / averageBuyingPrice),
+  minBuyingPrice: Math.max(0, averageBuyingPrice - 150),
+  averageBuyingPrice,
+  maxBuyingPrice: averageBuyingPrice + 250,
+  onlinePrice,
+  marketPrice,
+  clearancePrice,
+  onlinePercent: 65,
+  marketPercent: 25,
+  clearancePercent: 10,
+  discountPercent: 5,
+  damagedPercent: 3,
+  unsoldPercent: 12,
+  priority,
+  notes: "",
+});
+
+export const defaultExpenses: PlannerExpense[] = [
+  expense(
+    "10000000-0000-4000-8000-000000000001",
+    "Gikomba and sourcing transport",
+    "Sourcing",
+    2500,
+    true,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000002",
+    "Transport of stock to Meru",
+    "Sourcing",
+    1500,
+    true,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000003",
+    "Buyer allowance and meals",
+    "Sourcing",
+    1500,
+    true,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000004",
+    "Cleaning and steaming",
+    "Preparation",
+    2500,
+    true,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000005",
+    "Packaging and tags",
+    "Preparation",
+    2000,
+    true,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000006",
+    "Photography and content",
+    "Marketing",
+    2000,
+    false,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000007",
+    "Launch marketing",
+    "Marketing",
+    3000,
+    false,
+  ),
+  expense(
+    "10000000-0000-4000-8000-000000000008",
+    "Emergency contingency",
+    "Contingency",
+    2500,
+    false,
+  ),
+];
+
+export const defaultCategories: PlannerCategory[] = [
+  category(
+    "20000000-0000-4000-8000-000000000001",
+    "Dresses",
+    9750,
+    650,
+    1800,
+    1300,
+    850,
+    "essential",
+  ),
+  category(
+    "20000000-0000-4000-8000-000000000002",
+    "Tops and blouses",
+    6500,
+    350,
+    1050,
+    750,
+    500,
+    "essential",
+  ),
+  category(
+    "20000000-0000-4000-8000-000000000003",
+    "Trousers and skirts",
+    6500,
+    500,
+    1400,
+    1000,
+    650,
+    "high",
+  ),
+  category(
+    "20000000-0000-4000-8000-000000000004",
+    "Jackets and cardigans",
+    4875,
+    750,
+    2100,
+    1500,
+    900,
+    "high",
+  ),
+  category(
+    "20000000-0000-4000-8000-000000000005",
+    "Statement pieces",
+    3250,
+    800,
+    2600,
+    1800,
+    1100,
+    "medium",
+  ),
+  category(
+    "20000000-0000-4000-8000-000000000006",
+    "Accessories or experimental stock",
+    1625,
+    250,
+    800,
+    550,
+    350,
+    "experimental",
+  ),
+];
+
+export function createDefaultScenario(
+  overrides: Partial<PlannerScenario> = {},
+): PlannerScenario {
+  const timestamp = new Date().toISOString();
+  return {
+    id: crypto.randomUUID(),
+    name: "First Meru Ladies Drop",
+    description:
+      "Editable planning assumptions for the first curated sourcing trip and launch.",
+    status: "draft",
+    mode: "budget",
+    totalCapital: 50_000,
+    plannedStockBudget: 32_500,
+    targetPricingMethod: "markup",
+    targetRatePercent: 120,
+    expectedSellThroughPercent: 85,
+    plannedSourcingDate: today,
+    plannedLaunchDate: today,
+    notes: "",
+    priceRounding: "nearest_50",
+    paymentChargePercent: 2,
+    sellerCommission: {
+      type: "percentage",
+      amount: 10,
+      targetAmount: 0,
+    },
+    expenses: defaultExpenses.map((item) => ({ ...item })),
+    categories: defaultCategories.map((item) => ({ ...item })),
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    ...overrides,
+  };
+}
+
+export const blankExpense = (): PlannerExpense => ({
+  id: crypto.randomUUID(),
+  name: "Other expense",
+  category: "Other",
+  amount: 0,
+  costType: "fixed",
+  allocateToInventory: false,
+  notes: "",
+});
+
+export const blankCategory = (): PlannerCategory => ({
+  id: crypto.randomUUID(),
+  name: "New category",
+  budget: 0,
+  quantity: 0,
+  minBuyingPrice: 0,
+  averageBuyingPrice: 0,
+  maxBuyingPrice: 0,
+  onlinePrice: 0,
+  marketPrice: 0,
+  clearancePrice: 0,
+  onlinePercent: 60,
+  marketPercent: 30,
+  clearancePercent: 10,
+  discountPercent: 0,
+  damagedPercent: 0,
+  unsoldPercent: 10,
+  priority: "medium",
+  notes: "",
+});
