@@ -45,6 +45,39 @@ docs/                        Formula, database, roles and deployment notes
 - Print-friendly report, scenario/category/checklist CSV and WhatsApp summary.
 - Honest “Coming next” screens for deferred modules.
 
+## SHAWN Apparel storefront
+
+A public, editorial e-commerce storefront for SHAWN Apparel, built on the SHAWN design system (warm neutral palette, Marcellus serif, Jost sans, the Lens mark). It sells limited drops of one of one pieces: each item is a single unit, and once it is sold it becomes unavailable immediately.
+
+- **Public pages**: Home (`/`), the current drop (`/shop`), product detail (`/product/[slug]`), cart (`/cart`), checkout (`/checkout`), payment success and failure (`/payment/success`, `/payment/failed`), about (`/about`), contact and WhatsApp support (`/contact`), and the terms, privacy, and returns policies.
+- **Drop based catalogue**: drops have a status of draft, active, or archived. Only the active drop is public. Products carry images, size, condition, measurements, price, description, and availability.
+- **One of one purchasing**: quantity is always a single unit. Adding to the bag re-checks availability, and checkout reserves each piece server side for 15 minutes inside an atomic, row-locked transaction so two shoppers can never buy the same piece.
+- **Paystack payments in KES**: checkout creates an `awaiting_payment` order, reserves the pieces, and starts a Paystack transaction. Payment is confirmed server side by transaction verification and by a signed webhook. Only then is the order marked paid and the piece sold. Failed or abandoned payments release the hold and never mark a piece sold. Confirmations are idempotent, so the callback and the webhook are safe together. All prices and totals are in Kenyan Shillings, shown as `KSh 1,500`.
+- **Admin**: a protected area at `/admin` (reuses the existing operator login) to create, activate, and archive drops; add, hide, and mark products sold; view orders and update fulfilment; and configure the delivery fee and support contacts.
+
+The storefront renders as a preview with built in sample data when Supabase is not configured. Checkout and payments require Supabase and Paystack credentials.
+
+### Storefront environment
+
+In addition to the Supabase URL and publishable key, set:
+
+```env
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+PAYSTACK_SECRET_KEY=sk_test_or_live_xxx
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_or_live_xxx
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+The service role key and the Paystack secret key are server side only. Never expose them to the browser or place them in a `NEXT_PUBLIC_` variable.
+
+### Paystack setup
+
+1. Create a Paystack account and, in **Settings → Preferences**, set your default currency to Kenyan Shillings (KES).
+2. Copy the secret and public keys from **Settings → API Keys & Webhooks** into `.env.local`.
+3. Add a webhook pointing to `https://YOUR_DOMAIN/api/paystack/webhook`. The route verifies the `x-paystack-signature` before trusting any event.
+4. Run the migrations (`npm run db:push` or `npm run db:reset`) so the `drops`, `products`, `orders`, `order_items`, and `store_settings` tables and the inventory functions (`begin_checkout`, `mark_order_paid`, `release_order`, `expire_reservations`) are created.
+5. Optionally configure a scheduled call to `select public.expire_reservations();` (for example a Supabase cron job every few minutes) to sweep lapsed reservations back to available.
+
 ## Local setup
 
 Requirements: Node.js 20.9 or newer, npm, Git, and Docker Desktop if running Supabase locally.
@@ -118,9 +151,12 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
 NEXT_PUBLIC_DEMO_MODE=false
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+PAYSTACK_SECRET_KEY=YOUR_PAYSTACK_SECRET_KEY
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=YOUR_PAYSTACK_PUBLIC_KEY
 ```
 
-Run `npm run db:push` against the production Supabase project before first use. Never add service-role keys to browser-visible environment variables.
+Run `npm run db:push` against the production Supabase project before first use. Never add service-role or Paystack secret keys to browser-visible (`NEXT_PUBLIC_`) environment variables. Point your Paystack webhook at `https://YOUR_DOMAIN/api/paystack/webhook`.
 
 ## Documentation
 

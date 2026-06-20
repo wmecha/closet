@@ -1,0 +1,242 @@
+/* SHAWN Apparel storefront styles.
+   Scoped under .shawn-store so the editorial brand system never collides with
+   the internal operations app (shadcn) tokens. Built from the SHAWN design
+   system tokens: warm neutral spine, two muted earth accents, no bright colour.
+   Fonts (Marcellus, Cormorant Garamond, Jost) are injected by next/font and
+   mapped onto --font-display / --font-editorial / --font-sans below. */
+
+.shawn-store {
+  /* ----- Neutral spine (warm) ----- */
+  --shawn-ivory: #f7f2e9;
+  --shawn-bone: #efe6d6;
+  --shawn-sand: #e2d3bc;
+  --shawn-stone: #c3b6a2;
+  --shawn-taupe: #94897a;
+  --shawn-espresso: #4a3a2e;
+  --shawn-charcoal: #2b2723;
+  --shawn-ink: #1a1714;
+
+  /* ----- Earth accents (muted) ----- */
+  --shawn-clay: #a97b5f;
+  --shawn-clay-soft: #c79e84;
+  --shawn-olive: #6e6b4e;
+  --shawn-olive-soft: #8c8a6c;
+
+  --shawn-success: #5e6b4b;
+  --shawn-error: #8c4a3a;
+
+  /* ----- Semantic aliases ----- */
+  --surface-page: var(--shawn-ivory);
+  --surface-raised: #fbf8f1;
+  --surface-card: #ffffff;
+  --surface-sunken: var(--shawn-bone);
+  --surface-fill: var(--shawn-sand);
+  --surface-inverse: var(--shawn-ink);
+  --surface-inverse-2: var(--shawn-charcoal);
+
+  --text-primary: var(--shawn-ink);
+  --text-secondary: var(--shawn-taupe);
+  --text-tertiary: var(--shawn-stone);
+  --text-on-inverse: var(--shawn-ivory);
+  --text-on-inverse-soft: #c7bcac;
+  --text-accent: var(--shawn-clay);
+
+  --line-hairline: rgba(26, 23, 20, 0.1);
+  --line-soft: rgba(26, 23, 20, 0.16);
+  --line-strong: rgba(26, 23, 20, 0.32);
+  --line-on-inverse: rgba(247, 242, 233, 0.18);
+
+  --accent-clay: var(--shawn-clay);
+  --accent-olive: var(--shawn-olive);
+
+  /* ----- Fonts (mapped from next/font variables) ----- */
+  --font-display: var(--font-marcellus), "Times New Roman", serif;
+  --font-editorial: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-jost), system-ui, -apple-system, sans-serif;
+
+  /* ----- Type scale ----- */
+  --fs-display-xl: clamp(3.5rem, 7vw, 6.5rem);
+  --fs-display-l: clamp(2.75rem, 5vw, 4.5rem);
+  --fs-display-m: clamp(2rem, 3.5vw, 3rem);
+  --fs-heading: 1.75rem;
+  --fs-title: 1.3125rem;
+  --fs-body-lg: 1.0625rem;
+  --fs-body: 0.9375rem;
+  --fs-caption: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  --tracking-wordmark: 0.42em;
+  --tracking-eyebrow: 0.3em;
+  --tracking-label: 0.16em;
+  --tracking-display: 0.01em;
+  --tracking-body: 0.005em;
+
+  --leading-tight: 1.08;
+  --leading-snug: 1.25;
+  --leading-body: 1.62;
+  --leading-relaxed: 1.8;
+
+  /* ----- Spacing ----- */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-120: 120px;
+  --space-160: 160px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 2px 8px rgba(42, 39, 35, 0.05);
+  --shadow-md: 0 8px 28px rgba(42, 39, 35, 0.07);
+  --shadow-lg: 0 24px 60px rgba(42, 39, 35, 0.1);
+
+  --content-max: 1280px;
+  --content-narrow: 720px;
+  --gutter: clamp(20px, 5vw, 80px);
+
+  --ease-standard: cubic-bezier(0.33, 0, 0.1, 1);
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 620ms;
+
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+}
+
+.shawn-store *,
+.shawn-store *::before,
+.shawn-store *::after {
+  box-sizing: border-box;
+}
+
+.shawn-store a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.shawn-store img {
+  max-width: 100%;
+}
+
+/* ----- Layout helpers ----- */
+.shawn-container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.shawn-narrow {
+  max-width: var(--content-narrow);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.shawn-section {
+  padding-block: clamp(64px, 9vw, 120px);
+}
+
+/* ----- Type helpers ----- */
+.shawn-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-tight);
+}
+
+.shawn-serif {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--leading-snug);
+}
+
+.shawn-editorial {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  line-height: var(--leading-snug);
+}
+
+.shawn-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--shawn-clay);
+}
+
+.shawn-wordmark {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-wordmark);
+  text-transform: uppercase;
+}
+
+.shawn-body {
+  color: var(--text-secondary);
+  line-height: var(--leading-body);
+}
+
+.shawn-grid {
+  display: grid;
+  gap: clamp(16px, 2.4vw, 32px) clamp(16px, 2vw, 28px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 720px) {
+  .shawn-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1040px) {
+  .shawn-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.shawn-hairline {
+  border: none;
+  border-top: 1px solid var(--line-hairline);
+}
+
+/* Two-up editorial split and footer grid collapse on small screens. */
+.shawn-split {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 760px) {
+  .shawn-split {
+    grid-template-columns: 1fr !important;
+  }
+  .shawn-footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .shawn-trio {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shawn-store *,
+  .shawn-store *::before,
+  .shawn-store *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}

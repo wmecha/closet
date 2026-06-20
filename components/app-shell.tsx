@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin", label: "Store Admin", icon: ShoppingBag },
   { href: "/planner", label: "Stock Buy Planner", icon: ClipboardList },
   { href: "/buying-trips", label: "Buying Trips", icon: Truck },
   { href: "/inventory", label: "Inventory", icon: Boxes },

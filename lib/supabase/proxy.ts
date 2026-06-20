@@ -15,6 +15,7 @@ const protectedPrefixes = [
   "/reports",
   "/team",
   "/settings",
+  "/admin",
 ];
 
 export async function updateSession(request: NextRequest) {
