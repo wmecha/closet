@@ -9,15 +9,17 @@ import {
   verifyWebhookSignature,
 } from "@/lib/paystack";
 import { mapOrder } from "@/lib/store/mappers";
+import { emitShawnFinanceEvent } from "@/lib/finance-events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Paystack webhook. This is the authoritative confirmation path: even if the
- * customer closes the browser before the callback, the webhook still settles
- * the order. The signature is verified before anything is trusted, and the
- * underlying SQL functions are idempotent so duplicate events are safe.
+ * Paystack webhook. Authoritative payment confirmation path — runs even if
+ * the customer closes the browser before the success redirect. Signature
+ * verified before any trust is granted. SQL functions are idempotent.
+ * After settling the order, a normalized Finance event is emitted to WM
+ * Finance for revenue recognition and reconciliation.
  */
 export async function POST(request: Request) {
   const secretKey = getPaystackSecretKey();
@@ -34,11 +36,15 @@ export async function POST(request: Request) {
 
   let event: {
     event?: string;
+    id?: string | number;
     data?: {
       reference?: string;
       status?: string;
       amount?: number;
       currency?: string;
+      fees?: number;
+      customer?: { email?: string; customer_code?: string };
+      metadata?: Record<string, unknown>;
     };
   };
   try {
@@ -51,6 +57,9 @@ export async function POST(request: Request) {
   if (!reference) {
     return NextResponse.json({ status: "no reference" }, { status: 200 });
   }
+
+  const paystackEventId = String(event.id ?? `${event.event}:${reference}`);
+  const occurredAt = new Date().toISOString();
 
   const supabase = createAdminClient();
   const { data: orderRow } = await supabase
@@ -66,20 +75,41 @@ export async function POST(request: Request) {
   const order = mapOrder(orderRow);
 
   if (event.event === "charge.success") {
-    // Re-check the amount and currency reported in the event before settling.
-    if (
-      isSuccessfulCharge(
-        {
-          status: event.data?.status ?? "success",
-          amount: event.data?.amount ?? 0,
-          currency: event.data?.currency ?? order.currency,
-        },
-        order.total,
-        order.currency,
-      )
-    ) {
+    const grossMinor = event.data?.amount ?? 0;
+    const feeMinor = event.data?.fees ?? 0;
+    const currency = (event.data?.currency ?? order.currency).toUpperCase();
+
+    const isValid = isSuccessfulCharge(
+      {
+        status: event.data?.status ?? "success",
+        amount: grossMinor,
+        currency: event.data?.currency ?? order.currency,
+      },
+      order.total,
+      order.currency,
+    );
+
+    if (isValid) {
       await supabase.rpc("mark_order_paid", { p_reference: reference });
+
+      // Emit Finance event — non-blocking, failure does not affect order state
+      await emitShawnFinanceEvent(
+        "order.payment_succeeded",
+        {
+          paystackEventId,
+          orderReference: reference,
+          orderId: String(order.id),
+          currency,
+          grossAmount: grossMinor / 100,
+          feeAmount: feeMinor > 0 ? feeMinor / 100 : undefined,
+          customerEmail: event.data?.customer?.email,
+          customerExternalId: event.data?.customer?.customer_code,
+          occurredAt,
+        },
+        event.data ?? {},
+      );
     }
+
     return NextResponse.json({ status: "ok" }, { status: 200 });
   }
 
@@ -88,6 +118,38 @@ export async function POST(request: Request) {
       p_reference: reference,
       p_status: "failed",
     });
+
+    await emitShawnFinanceEvent(
+      "order.payment_failed",
+      {
+        paystackEventId,
+        orderReference: reference,
+        orderId: String(order.id),
+        currency: (event.data?.currency ?? order.currency).toUpperCase(),
+        grossAmount: Number(event.data?.amount ?? 0) / 100,
+        customerEmail: event.data?.customer?.email,
+        occurredAt,
+      },
+      event.data ?? {},
+    );
+
+    return NextResponse.json({ status: "ok" }, { status: 200 });
+  }
+
+  if (event.event === "refund.processed") {
+    await emitShawnFinanceEvent(
+      "refund.issued",
+      {
+        paystackEventId,
+        orderReference: reference,
+        orderId: String(order.id),
+        currency: (event.data?.currency ?? order.currency).toUpperCase(),
+        grossAmount: Number(event.data?.amount ?? 0) / 100,
+        customerEmail: event.data?.customer?.email,
+        occurredAt,
+      },
+      event.data ?? {},
+    );
     return NextResponse.json({ status: "ok" }, { status: 200 });
   }
 
